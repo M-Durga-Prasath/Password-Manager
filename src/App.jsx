@@ -58,7 +58,7 @@ function App() {
 
       {/* Main UI */}
       <main className="flex-1 max-w-4xl mx-auto w-full p-6">
-        <h2 className="text-2xl font-semibold mb-6">Password Manager</h2>
+        <h2 className="text-2xl font-semibold mb-6">Password Manager- Password save kar sakte ho 🫠</h2>
 
         {/* Form UI */}
         <div
@@ -104,7 +104,7 @@ function App() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-500"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-500 cursor-pointer"
               >
                 {showPassword ? (
                   /* Eye Off SVG */
