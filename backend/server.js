@@ -33,6 +33,25 @@ app.delete("/", async (req, res) => {
   });
 });
 
+app.patch("/:id", async (req, res) => {
+  const data = req.body;
+  if (!data || Object.keys(data).length === 0) {
+    return res.status(400).json({ message: "Empty update body" });
+  }
+  const result = await client
+    .db("password")
+    .collection("password")
+    .updateOne({ _id: new ObjectId(req.params.id) }, { $set: data });
+  if (result.matchedCount === 0) {
+    return res.status(404).json({ message: "Data not found" });
+  }
+  if (result.acknowledged) {
+    res.status(200).json({
+      message: "Updated",
+    });
+  }
+});
+
 app.post("/", async (req, res) => {
   const { website, username, password } = req.body;
 
@@ -42,14 +61,12 @@ app.post("/", async (req, res) => {
     password,
   });
 
-  if (result.acknowledged){
+  if (result.acknowledged) {
     res.status(201).json({
-    message: "Inserted",
-    id: result.insertedId,
-  });
+      message: "Inserted",
+      id: result.insertedId,
+    });
   }
-
-  
 });
 
 app.listen(port, () => {

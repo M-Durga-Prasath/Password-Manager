@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState ,useEffect} from "react";
 
 function App() {
   const [darkMode, setDarkMode] = useState(true);
@@ -6,7 +6,12 @@ function App() {
   const [Username, setUsername] = useState("");
   const [Password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [Data,SetData] = useState([]);
 
+  useEffect(() => {
+    
+  }
+  )
   const submit = () => {
     setWebsite("");
     setUsername("");
@@ -19,13 +24,14 @@ function App() {
     console.log(data);
   };
 
+
+
   return (
     <div
       className={`min-h-screen flex flex-col transition-colors duration-300 ${
         darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
       }`}
     >
-      {/* Header */}
       <header
         className={`flex justify-between items-center px-6 py-4 shadow ${
           darkMode ? "bg-gray-800" : "bg-white"
@@ -56,11 +62,9 @@ function App() {
         </div>
       </header>
 
-      {/* Main UI */}
       <main className="flex-1 max-w-4xl mx-auto w-full p-6">
         <h2 className="text-2xl font-semibold mb-6">Password Manager- Password save kar sakte ho 🫠</h2>
 
-        {/* Form UI */}
         <div
           className={`p-6 rounded-lg shadow mb-8 ${
             darkMode ? "bg-gray-800" : "bg-white"
@@ -170,11 +174,9 @@ function App() {
           </div>
         </div>
 
-        {/* Password List UI */}
         <div className="space-y-4"></div>
       </main>
 
-      {/* Footer */}
       <footer
         className={`text-center py-4 text-sm ${
           darkMode ? "bg-gray-800" : "bg-white"
