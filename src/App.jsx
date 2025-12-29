@@ -1,4 +1,4 @@
-import { useState ,useEffect} from "react";
+import { useState, useEffect } from "react";
 
 function App() {
   const [darkMode, setDarkMode] = useState(true);
@@ -6,12 +6,20 @@ function App() {
   const [Username, setUsername] = useState("");
   const [Password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [Data,SetData] = useState([]);
+  const [Data, SetData] = useState([]);
+  const [Box, setBox] = useState(false);
+  const [Selecteddata, setSelecteddata] = useState(null);
 
   useEffect(() => {
-    
-  }
-  )
+    const fetchData = async () => {
+      const res = await fetch("http://localhost:3000");
+      const data = await res.json();
+      SetData(data);
+    };
+
+    fetchData();
+  }, []);
+
   const submit = () => {
     setWebsite("");
     setUsername("");
@@ -23,8 +31,6 @@ function App() {
     };
     console.log(data);
   };
-
-
 
   return (
     <div
@@ -63,7 +69,9 @@ function App() {
       </header>
 
       <main className="flex-1 max-w-4xl mx-auto w-full p-6">
-        <h2 className="text-2xl font-semibold mb-6">Password Manager- Password save kar sakte ho 🫠</h2>
+        <h2 className="text-2xl font-semibold mb-6">
+          Password Manager- Password save kar sakte ho 🫠
+        </h2>
 
         <div
           className={`p-6 rounded-lg shadow mb-8 ${
@@ -174,7 +182,84 @@ function App() {
           </div>
         </div>
 
-        <div className="space-y-4"></div>
+        <div className="space-y-4">
+          {Data.length > 0 ? (
+            Data.map((item) => (
+              <div
+                onClick={() => {
+                  setSelecteddata(item);
+                  setBox(true);
+                }}
+                key={item._id}
+                className="bg-gray-800 border border-gray-700 rounded-xl p-4 flex flex-col gap-2 cursor-pointer shadow-md"
+              >
+                <div className="flex justify-between">
+                  <span className="text-gray-400 text-sm">Website</span>
+                  <span className="font-medium text-white">{item.website}</span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-gray-400 text-sm">Username</span>
+                  <span className="text-white">{item.username}</span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="bg-gray-700 flex justify-center items-center w-full rounded-2xl min-h-12 text-gray-300">
+              No Passwords to show
+            </div>
+          )}
+        </div>
+        {Box && Selecteddata && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div
+              className="absolute inset-0 bg-black/60"
+              onClick={() => setBox(false)}
+            />
+            <div className="relative z-10 w-[420px] bg-gray-900 text-white rounded-xl p-6 shadow-xl border border-gray-700">
+              <button
+                onClick={() => setBox(false)}
+                className="absolute top-3 right-3 text-gray-400 hover:text-white text-xl cursor-pointer"
+              >
+                ✕
+              </button>
+
+              <h2 className="text-xl font-semibold mb-4 text-indigo-400">
+                Password Details
+              </h2>
+
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-gray-400">Website</p>
+                  <p className="font-mono bg-gray-800 rounded py-2 px-1 break-all">
+                    {Selecteddata.website}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-400">Username</p>
+                  <p className="font-mono bg-gray-800 rounded py-2 px-1 break-all">
+                    {Selecteddata.username}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm text-gray-400">Password</p>
+                  <p className="font-mono bg-gray-800 rounded py-2 px-1 break-all">
+                    {Selecteddata.password}
+                  </p>
+                </div>
+                <div className="w-full flex justify-end">
+                  <button
+                    className=" cursor-pointer px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       <footer
