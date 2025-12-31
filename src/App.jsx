@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast, { Toaster } from "react-hot-toast";
 
 function App() {
   const [darkMode, setDarkMode] = useState(true);
@@ -9,129 +10,186 @@ function App() {
   const [Data, SetData] = useState([]);
   const [Box, setBox] = useState(false);
   const [Selecteddata, setSelecteddata] = useState(null);
+  const [editMode, setEditMode] = useState({
+    website: false,
+    username: false,
+    password: false,
+  });
 
   useEffect(() => {
-    const fetchData = async () => {
-      const res = await fetch("http://localhost:3000");
-      const data = await res.json();
-      SetData(data);
-    };
-
-    fetchData();
+    refreshData();
   }, []);
 
-  const submit = () => {
-    setWebsite("");
-    setUsername("");
-    setPassword("");
-    const data = {
-      Website: Website,
-      Username: Username || " ",
-      Password: Password,
+  const submit = async () => {
+    if (!Website && !Username){
+      alert("Enter atleast password or username");
+      return;
+    }
+    const payload = {
+      website: Website,
+      username: Username || "",
+      password: Password,
     };
-    console.log(data);
+
+    const res = await fetch("http://localhost:3000", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      toast.success("Password added");
+      setWebsite("");
+      setUsername("");
+      setPassword("");
+      refreshData();
+    }
+  };
+
+  const deleteEntry = async () => {
+    const res = await fetch(`http://localhost:3000/?id=${Selecteddata._id}`, {
+      method: "DELETE",
+    });
+
+    if (res.ok) {
+      toast.success("Deleted successfully");
+      setBox(false);
+      refreshData();
+    }
+  };
+
+  const saveChanges = async () => {
+    const { _id, website, username, password } = Selecteddata;
+
+    const res = await fetch(`http://localhost:3000/${_id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ website, username, password }),
+    });
+
+    if (res.ok) {
+      toast.success("Updated successfully");
+      setBox(false);
+      refreshData();
+    }
+  };
+
+  const toggleEdit = (field) => {
+    setEditMode((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
+  };
+
+  const refreshData = async () => {
+    const res = await fetch("http://localhost:3000");
+    const data = await res.json();
+    SetData(data);
   };
 
   return (
-    <div
-      className={`min-h-screen flex flex-col transition-colors duration-300 ${
-        darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
-      }`}
-    >
-      <header
-        className={`flex justify-between items-center px-6 py-4 shadow ${
-          darkMode ? "bg-gray-800" : "bg-white"
+    <>
+      <Toaster position="top-right" />
+
+      <div
+        className={`min-h-screen flex flex-col transition-colors duration-300 ${
+          darkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
         }`}
       >
-        <h1 className="text-xl font-bold">&lt;PassWooord /&gt;</h1>
-
-        <div className="flex gap-4">
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="px-2 font-bold rounded-lg bg-indigo-500 text-white hover:bg-indigo-600"
-          >
-            {darkMode ? "☀️" : "🌙"}
-          </button>
-
-          <button
-            onClick={() =>
-              window.open("https://github.com/M-Durga-Prasath", "_blank")
-            }
-            className={`px-4 py-2 rounded-lg border cursor-pointer ${
-              darkMode
-                ? "border-gray-600 hover:bg-gray-700"
-                : "border-gray-300 hover:bg-gray-200"
-            }`}
-          >
-            GitHub
-          </button>
-        </div>
-      </header>
-
-      <main className="flex-1 max-w-4xl mx-auto w-full p-6">
-        <h2 className="text-2xl font-semibold mb-6">
-          Password Manager- Password save kar sakte ho 🫠
-        </h2>
-
-        <div
-          className={`p-6 rounded-lg shadow mb-8 ${
+        <header
+          className={`flex justify-between items-center px-6 py-4 shadow ${
             darkMode ? "bg-gray-800" : "bg-white"
           }`}
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input
-              value={Website}
-              onChange={(e) => {
-                setWebsite(e.target.value);
-              }}
-              type="text"
-              placeholder="Website"
-              className={`p-2 rounded border focus:outline-none focus:ring focus:ring-indigo-400 bg-transparent ${
-                darkMode ? "placeholder-gray-400" : "placeholder-gray-700"
-              } `}
-            />
-            <input
-              value={Username}
-              onChange={(e) => {
-                setUsername(e.target.value);
-              }}
-              type="text"
-              placeholder="Username"
-              className={`p-2 rounded border focus:outline-none focus:ring focus:ring-indigo-400 bg-transparent ${
-                darkMode ? "placeholder-gray-400" : "placeholder-gray-700"
-              } `}
-            />
-            <div className="relative">
+          <h1 className="text-xl font-bold">&lt;PassWooord /&gt;</h1>
+
+          <div className="flex gap-4">
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="px-2 font-bold rounded-lg bg-indigo-500 text-white hover:bg-indigo-600"
+            >
+              {darkMode ? "☀️" : "🌙"}
+            </button>
+
+            <button
+              onClick={() =>
+                window.open("https://github.com/M-Durga-Prasath", "_blank")
+              }
+              className={`px-4 py-2 rounded-lg border cursor-pointer ${
+                darkMode
+                  ? "border-gray-600 hover:bg-gray-700"
+                  : "border-gray-300 hover:bg-gray-200"
+              }`}
+            >
+              GitHub
+            </button>
+          </div>
+        </header>
+
+        <main className="flex-1 max-w-4xl mx-auto w-full p-6">
+          <h2 className="text-2xl font-semibold mb-6">
+            Password Manager- Password save kar sakte ho 🫠
+          </h2>
+
+          <div
+            className={`p-6 rounded-lg shadow mb-8 ${
+              darkMode ? "bg-gray-800" : "bg-white"
+            }`}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <input
-                type={showPassword ? "text" : "password"}
-                value={Password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                className={`w-full p-2 pr-10 rounded border bg-transparent
+                value={Website}
+                onChange={(e) => {
+                  setWebsite(e.target.value);
+                }}
+                type="text"
+                placeholder="Website"
+                className={`p-2 rounded border focus:outline-none focus:ring focus:ring-indigo-400 bg-transparent ${
+                  darkMode ? "placeholder-gray-400" : "placeholder-gray-700"
+                } `}
+              />
+              <input
+                value={Username}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                }}
+                type="text"
+                placeholder="Username"
+                className={`p-2 rounded border focus:outline-none focus:ring focus:ring-indigo-400 bg-transparent ${
+                  darkMode ? "placeholder-gray-400" : "placeholder-gray-700"
+                } `}
+              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={Password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  className={`w-full p-2 pr-10 rounded border bg-transparent
       focus:outline-none focus:ring focus:ring-indigo-400
       ${darkMode ? "placeholder-gray-400" : "placeholder-gray-700"}
     `}
-              />
+                />
 
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-500 cursor-pointer"
-              >
-                {showPassword ? (
-                  /* Eye Off SVG */
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-5 h-5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M3.98 8.223A10.477 10.477 0 001.934 12
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-indigo-500 cursor-pointer"
+                >
+                  {showPassword ? (
+                    /* Eye Off SVG */
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-5 h-5"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M3.98 8.223A10.477 10.477 0 001.934 12
              C3.226 16.338 7.244 19.5 12 19.5
              c.993 0 1.953-.138 2.863-.395
              M6.228 6.228A10.45 10.45 0 0112 4.5
@@ -140,139 +198,214 @@ function App() {
              M6.228 6.228L3 3m3.228 3.228L9.88 9.88
              m7.894 7.894L21 21m-3.228-3.228L14.12 14.12
              m0 0a3 3 0 10-4.243-4.243"
-                    />
-                  </svg>
-                ) : (
-                  /* Eye SVG */
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="w-5 h-5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M2.036 12.322a1.012 1.012 0 010-.639
+                      />
+                    </svg>
+                  ) : (
+                    /* Eye SVG */
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-5 h-5"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M2.036 12.322a1.012 1.012 0 010-.639
              C3.423 7.51 7.36 4.5 12 4.5
              c4.638 0 8.573 3.007 9.963 7.178
              .07.207.07.431 0 .639
              C20.577 16.49 16.64 19.5 12 19.5
              c-4.638 0-8.573-3.007-9.964-7.178z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                )}
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </div>
+            <div className="flex justify-center items-center mt-4 ">
+              <button
+                className="px-6 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
+                onClick={submit}
+              >
+                Save Password
               </button>
             </div>
           </div>
-          <div className="flex justify-center items-center mt-4 ">
-            <button
-              className="px-6 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
-              onClick={submit}
-            >
-              Save Password
-            </button>
-          </div>
-        </div>
 
-        <div className="space-y-4">
-          {Data.length > 0 ? (
-            Data.map((item) => (
-              <div
-                onClick={() => {
-                  setSelecteddata(item);
-                  setBox(true);
-                }}
-                key={item._id}
-                className="bg-gray-800 border border-gray-700 rounded-xl p-4 flex flex-col gap-2 cursor-pointer shadow-md"
-              >
-                <div className="flex justify-between">
-                  <span className="text-gray-400 text-sm">Website</span>
-                  <span className="font-medium text-white">{item.website}</span>
+          <div className="space-y-4">
+            {Data.length > 0 ? (
+              Data.map((item) => (
+                <div
+                  onClick={() => {
+                    setSelecteddata(item);
+                    setBox(true);
+                  }}
+                  key={item._id}
+                  className="bg-gray-800 border border-gray-700 rounded-xl p-4 flex flex-col gap-2 cursor-pointer shadow-md"
+                >
+                  <div className="flex justify-between">
+                    <span className="text-gray-400 text-sm">Website</span>
+                    <span className="font-medium text-white">
+                      {item.website}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span className="text-gray-400 text-sm">Username</span>
+                    <span className="text-white">{item.username}</span>
+                  </div>
                 </div>
+              ))
+            ) : (
+              <div className="bg-gray-700 flex justify-center items-center w-full rounded-2xl min-h-12 text-gray-300">
+                No Passwords to show
+              </div>
+            )}
+          </div>
+          {Box && Selecteddata && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center">
+              <div
+                className="absolute inset-0 bg-black/60"
+                onClick={() => setBox(false)}
+              />
+              <div className="relative z-10 w-[420px] bg-gray-900 text-white rounded-xl p-6 shadow-xl border border-gray-700">
+                <button
+                  onClick={() => setBox(false)}
+                  className="absolute top-3 right-3 text-gray-400 hover:text-white text-xl cursor-pointer"
+                >
+                  ✕
+                </button>
 
-                <div className="flex justify-between">
-                  <span className="text-gray-400 text-sm">Username</span>
-                  <span className="text-white">{item.username}</span>
+                <h2 className="text-xl font-semibold mb-4 text-indigo-400">
+                  Password Details
+                </h2>
+
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-sm text-gray-400 mb-1">Website</p>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        value={Selecteddata.website}
+                        readOnly={!editMode.website}
+                        onChange={(e) =>
+                          setSelecteddata({
+                            ...Selecteddata,
+                            website: e.target.value,
+                          })
+                        }
+                        className={`flex-1 bg-gray-800 rounded p-2 font-mono ${
+                          editMode.website
+                            ? "border border-indigo-400"
+                            : "opacity-80"
+                        }`}
+                      />
+                      <button
+                        onClick={() => toggleEdit("website")}
+                        className="text-gray-400 hover:text-indigo-400 cursor-pointer"
+                      >
+                        ✏️
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-gray-400 mb-1">Username</p>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        value={Selecteddata.username}
+                        readOnly={!editMode.username}
+                        onChange={(e) =>
+                          setSelecteddata({
+                            ...Selecteddata,
+                            username: e.target.value,
+                          })
+                        }
+                        className={`flex-1 bg-gray-800 rounded p-2 font-mono ${
+                          editMode.username
+                            ? "border border-indigo-400"
+                            : "opacity-80"
+                        }`}
+                      />
+
+                      <button
+                        onClick={() => toggleEdit("username")}
+                        className="text-gray-400 hover:text-indigo-400 cursor-pointer" 
+                      >
+                        ✏️
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-gray-400 mb-1">Password</p>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={Selecteddata.password}
+                        readOnly={!editMode.password}
+                        onChange={(e) =>
+                          setSelecteddata({
+                            ...Selecteddata,
+                            password: e.target.value,
+                          })
+                        }
+                        className={`flex-1 bg-gray-800 rounded p-2 font-mono
+        ${editMode.password ? "border border-indigo-400" : "opacity-80"}
+      `}
+                      />
+
+                      <button
+                        onClick={() => toggleEdit("password")}
+                        className="text-gray-400 hover:text-indigo-400 cursor-pointer"
+                      >
+                        ✏️
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="w-full flex justify-end gap-3">
+                    <button
+                      onClick={saveChanges}
+                      className=" cursor-pointer px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
+                    >
+                      Save Changes
+                    </button>
+                    <button
+                      onClick={deleteEntry}
+                      className="px-4 py-2 bg-red-500 rounded hover:bg-red-600 cursor-pointer mr-2"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               </div>
-            ))
-          ) : (
-            <div className="bg-gray-700 flex justify-center items-center w-full rounded-2xl min-h-12 text-gray-300">
-              No Passwords to show
             </div>
           )}
-        </div>
-        {Box && Selecteddata && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div
-              className="absolute inset-0 bg-black/60"
-              onClick={() => setBox(false)}
-            />
-            <div className="relative z-10 w-[420px] bg-gray-900 text-white rounded-xl p-6 shadow-xl border border-gray-700">
-              <button
-                onClick={() => setBox(false)}
-                className="absolute top-3 right-3 text-gray-400 hover:text-white text-xl cursor-pointer"
-              >
-                ✕
-              </button>
+        </main>
 
-              <h2 className="text-xl font-semibold mb-4 text-indigo-400">
-                Password Details
-              </h2>
-
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-400">Website</p>
-                  <p className="font-mono bg-gray-800 rounded py-2 px-1 break-all">
-                    {Selecteddata.website}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-sm text-gray-400">Username</p>
-                  <p className="font-mono bg-gray-800 rounded py-2 px-1 break-all">
-                    {Selecteddata.username}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-sm text-gray-400">Password</p>
-                  <p className="font-mono bg-gray-800 rounded py-2 px-1 break-all">
-                    {Selecteddata.password}
-                  </p>
-                </div>
-                <div className="w-full flex justify-end">
-                  <button
-                    className=" cursor-pointer px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
-                  >
-                    Save Changes
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </main>
-
-      <footer
-        className={`text-center py-4 text-sm ${
-          darkMode ? "bg-gray-800" : "bg-white"
-        }`}
-      >
-        Made with ❤️ by{" "}
-        <span className="font-semibold">
-          <a href="https://github.com/M-Durga-Prasath">M-Durga-Prasath</a>
-        </span>
-      </footer>
-    </div>
+        <footer
+          className={`text-center py-4 text-sm ${
+            darkMode ? "bg-gray-800" : "bg-white"
+          }`}
+        >
+          Made with ❤️ by{" "}
+          <span className="font-semibold">
+            <a href="https://github.com/M-Durga-Prasath">M-Durga-Prasath</a>
+          </span>
+        </footer>
+      </div>
+    </>
   );
 }
 
