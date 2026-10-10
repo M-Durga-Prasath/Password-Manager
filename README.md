@@ -36,8 +36,3 @@ Each saved entry contains a website, username, and password. Users can select an
 | DELETE | `/?id=:id` | Delete a credential |
 
 
-## Author
-
-**M-Durga-Prasath**
-
-[GitHub Profile](https://github.com/M-Durga-Prasath)
