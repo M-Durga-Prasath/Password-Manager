@@ -25,13 +25,6 @@ The application uses a React frontend to interact with an Express.js backend thr
 
 Each saved entry contains a website, username, and password. Users can select an entry to view its details, make changes, or delete it.
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js and npm
-- A MongoDB database
-
 
 ## API Endpoints
 
