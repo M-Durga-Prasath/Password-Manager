@@ -28,7 +28,7 @@ Each saved entry contains a website, username, and password. Users can select an
 
 ## API Endpoints
 
-| Method | Endpoint | Purpose |
+| Method | Endpoint | Purposes |
 |---|---|---|
 | GET | `/` | Retrieve all saved credentials |
 | POST | `/` | Add a new credential |
