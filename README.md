@@ -32,49 +32,6 @@ Each saved entry contains a website, username, and password. Users can select an
 - Node.js and npm
 - A MongoDB database
 
-### Installation
-
-1. Clone the repository:
-
-   \`\`\`bash
-   git clone https://github.com/M-Durga-Prasath/Password-Manager.git
-   cd Password-Manager
-   \`\`\`
-
-2. Install frontend dependencies:
-
-   \`\`\`bash
-   npm install
-   \`\`\`
-
-3. Install backend dependencies:
-
-   \`\`\`bash
-   cd backend
-   npm install
-   \`\`\`
-
-4. Create a `.env` file inside the `backend` directory and configure your MongoDB connection string:
-
-   \`\`\`env
-   HOST=your_mongodb_connection_string
-   \`\`\`
-
-### Running the Application
-
-Start the backend from the `backend` directory:
-
-\`\`\`bash
-npm run dev
-\`\`\`
-
-Start the frontend from the project root in a separate terminal:
-
-\`\`\`bash
-npm run dev
-\`\`\`
-
-Open the local URL displayed by Vite, usually `http://localhost:5173`.
 
 ## API Endpoints
 
@@ -85,9 +42,6 @@ Open the local URL displayed by Vite, usually `http://localhost:5173`.
 | PATCH | `/:id` | Update an existing credential |
 | DELETE | `/?id=:id` | Delete a credential |
 
-## Security Note
-
-This project was developed for educational purposes. Passwords are currently stored in plain text, and the application does not implement user authentication or encryption. Avoid storing real or sensitive credentials until appropriate security measures have been implemented.
 
 ## Author
 
